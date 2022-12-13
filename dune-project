@@ -19,7 +19,7 @@
  (name lukama)
  (synopsis "A short synopsis")
  (description "A longer description")
- (depends ocaml dune)
+ (depends ocaml dune toml dream omd)
  (tags
   (topics "to describe" your project)))
 
