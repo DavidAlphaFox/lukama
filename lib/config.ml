@@ -135,7 +135,7 @@ module Struct = struct
 
   module Path = struct
     type path =
-      { posts : string
+      { article : string
       ; about : string
       }
 
@@ -156,16 +156,16 @@ module Struct = struct
      ;;
     end
 
-    module Posts = struct
+    module Article = struct
       type t = string
 
       let parse : Toml.Types.table -> (t, string) result =
        fun path_table ->
         match
-          Toml.Types.Table.find (Toml.Types.Table.Key.of_string "posts") path_table
+          Toml.Types.Table.find (Toml.Types.Table.Key.of_string "article") path_table
         with
-        | Toml.Types.TString posts -> Ok posts
-        | _ -> Error "The 'posts' field type in the path table is wrong!"
+        | Toml.Types.TString article -> Ok article
+        | _ -> Error "The 'article' field type in the path table is wrong!"
      ;;
     end
 
@@ -186,8 +186,8 @@ module Struct = struct
      fun config_filevalue ->
       let path_table = Path_Table.parse config_filevalue |> unsafe in
       let about = About.parse path_table |> unsafe in
-      let posts = Posts.parse path_table |> unsafe in
-      { about; posts }
+      let article = Article.parse path_table |> unsafe in
+      { about; article }
    ;;
   end
 
