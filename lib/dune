@@ -1,3 +1,4 @@
 (library
  (name lukama_lib)
+ (flags (:standard -w -69))
  (libraries dream core omd toml simlog))

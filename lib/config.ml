@@ -72,6 +72,7 @@ module Struct = struct
 
     let parse : Toml.Types.table -> info =
      fun config_filevalue ->
+      let () = Simlog.debug "parsing info table..." in
       let info_table = Info_Table.parse config_filevalue |> unsafe in
       let title = Title.parse info_table |> unsafe in
       let lang = Lang.parse info_table |> unsafe in
@@ -85,8 +86,9 @@ module Struct = struct
       type style_table = Toml.Types.table
       type t = style_table
 
-      let parse : Toml.Types.table -> (style_table, string) result =
+      let parse : Toml.Types.table -> (t, string) result =
        fun config_filevalue ->
+        let () = Simlog.debug "parsing style table..." in
         match
           Toml.Types.Table.find (Toml.Types.Table.Key.of_string "style") config_filevalue
         with
@@ -134,7 +136,7 @@ end
 
 let parse : string -> Toml.Types.table =
  fun config_filepath ->
-  let () = Simlog.info "Parser config file ..." in
+  let () = Simlog.debug "parsing config file ..." in
   match Toml.Parser.from_filename config_filepath with
   | `Ok toml_table -> toml_table
   | `Error (msg, { source; line; column; position }) ->
@@ -154,6 +156,8 @@ let parse : string -> Toml.Types.table =
 
 let load : string -> Struct.t =
  fun config_filepath ->
-  let () = Simlog.info "load config file ..." in
-  config_filepath |> parse |> Struct.parse
+  let () = Simlog.info "loading config file ..." in
+  let result = config_filepath |> parse |> Struct.parse in
+  let () = Simlog.debug "config file loaded!" in
+  result
 ;;
