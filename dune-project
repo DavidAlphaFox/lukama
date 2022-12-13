@@ -1,4 +1,4 @@
-(lang dune 3.6)
+(lang dune 3.0)
 
 (name lukama)
 
@@ -19,7 +19,7 @@
  (name lukama)
  (synopsis "Static blog engine in OCaml")
  (description "Static blog engine in OCaml")
- (depends ocaml dune toml dream omd simlog)
+ (depends ocaml dune toml dream omd simlog core)
  (tags
   (blog)))
 

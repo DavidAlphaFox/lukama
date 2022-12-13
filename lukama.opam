@@ -11,7 +11,7 @@ doc: "https://github.com/muqiuhan/lukama"
 bug-reports: "https://github.com/muqiuhan/lukama/issues"
 depends: [
   "ocaml"
-  "dune" {>= "3.6"}
+  "dune" {>= "3.0"}
   "toml"
   "dream"
   "omd"
