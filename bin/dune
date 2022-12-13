@@ -1,0 +1,4 @@
+(executable
+ (public_name lukama)
+ (name lukama)
+ (libraries lukama_lib))

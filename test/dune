@@ -1,0 +1,3 @@
+(test
+ (name lukama_test)
+ (libraries alcotest lukama_lib))
