@@ -6,10 +6,10 @@
 (***********************************************************************)
 
 let unsafe : ('a, string) result -> 'a =
-  fun v ->
-   match v with
-   | Ok v -> v
-   | Error msg ->
-     let () = Simlog.error msg in
-     failwith msg
+ fun v ->
+  match v with
+  | Ok v -> v
+  | Error msg ->
+    let () = Simlog.error msg in
+    failwith msg
 ;;
