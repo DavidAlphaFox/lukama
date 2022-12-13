@@ -5,3 +5,7 @@ description = "An unassuming code farmer, a simple folk poet."
 
 [style]
 theme = "default"
+
+[path]
+posts = "blog/posts/*.md"
+about = "blog/about.md"

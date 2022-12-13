@@ -5,6 +5,18 @@
 (* https://opensource.org/licenses/MIT                                 *)
 (***********************************************************************)
 
+(* All field parsing modules follow the following signature implementation: *)
+(* module XXX = struct
+     type t
+     val parse : Toml.Types.table -> (t, string) result *)
+
+(* For all table parse modules, follow the signature implementation: *)
+(* module XXX = struct
+     type t
+     val parse : Toml.Types.table -> t *)
+(* Because the parsing of all fields in the table is unsafe,
+   if an error occurs, it will directly failwith, so there is no need to process the result *)
+
 open Core
 open Utils
 
@@ -92,7 +104,7 @@ module Struct = struct
         match
           Toml.Types.Table.find (Toml.Types.Table.Key.of_string "style") config_filevalue
         with
-        | Toml.Types.TTable info_table -> Ok info_table
+        | Toml.Types.TTable style_table -> Ok style_table
         | _ -> Error "The configuration file lacks the 'style' table!"
      ;;
     end
@@ -106,7 +118,7 @@ module Struct = struct
           Toml.Types.Table.find (Toml.Types.Table.Key.of_string "theme") style_table
         with
         | Toml.Types.TString title -> Ok title
-        | _ -> Error "The 'lang' field type in the info table is wrong!"
+        | _ -> Error "The 'theme' field type in the style table is wrong!"
      ;;
     end
 
@@ -121,14 +133,76 @@ module Struct = struct
    ;;
   end
 
+  module Path = struct
+    type path =
+      { posts : string
+      ; about : string
+      }
+
+    type t = path
+
+    module Path_Table = struct
+      type path_table = Toml.Types.table
+      type t = path_table
+
+      let parse : Toml.Types.table -> (t, string) result =
+       fun config_filevalue ->
+        let () = Simlog.debug "parsing path table..." in
+        match
+          Toml.Types.Table.find (Toml.Types.Table.Key.of_string "path") config_filevalue
+        with
+        | Toml.Types.TTable path_table -> Ok path_table
+        | _ -> Error "The configuration file lacks the 'path' table!"
+     ;;
+    end
+
+    module Posts = struct
+      type t = string
+
+      let parse : Toml.Types.table -> (t, string) result =
+       fun path_table ->
+        match
+          Toml.Types.Table.find (Toml.Types.Table.Key.of_string "posts") path_table
+        with
+        | Toml.Types.TString posts -> Ok posts
+        | _ -> Error "The 'posts' field type in the path table is wrong!"
+     ;;
+    end
+
+    module About = struct
+      type t = string
+
+      let parse : Toml.Types.table -> (t, string) result =
+       fun path_table ->
+        match
+          Toml.Types.Table.find (Toml.Types.Table.Key.of_string "about") path_table
+        with
+        | Toml.Types.TString posts -> Ok posts
+        | _ -> Error "The 'about' field type in the path table is wrong!"
+     ;;
+    end
+
+    let parse : Toml.Types.table -> t =
+     fun config_filevalue ->
+      let path_table = Path_Table.parse config_filevalue |> unsafe in
+      let about = About.parse path_table |> unsafe in
+      let posts = Posts.parse path_table |> unsafe in
+      { about; posts }
+   ;;
+  end
+
   type config_file_struct =
     { info : Info.t
     ; style : Style.t
+    ; path : Path.t
     }
 
   let parse : Toml.Types.table -> config_file_struct =
    fun config_filevalue ->
-    { info = Info.parse config_filevalue; style = Style.parse config_filevalue }
+    { info = Info.parse config_filevalue
+    ; style = Style.parse config_filevalue
+    ; path = Path.parse config_filevalue
+    }
  ;;
 
   type t = config_file_struct
@@ -158,6 +232,6 @@ let load : string -> Struct.t =
  fun config_filepath ->
   let () = Simlog.info "loading config file ..." in
   let result = config_filepath |> parse |> Struct.parse in
-  let () = Simlog.debug "config file loaded!" in
+  let () = Simlog.info "config file loaded!" in
   result
 ;;
